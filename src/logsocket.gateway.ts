@@ -2,6 +2,7 @@
 import { Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
+import { LogLine } from './utils/log-line';
 
 @WebSocketGateway( { cors: true, transports: ['websocket', 'polling'] })
 export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
@@ -23,13 +24,23 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
     //const token = this.extractTokensCookie(req.headers['cookie'])
     // for this example, we simply set userId by token
     //client.id = token;
-    //this.logger.log("header auth: " + client.handshake.headers.authorization);
-    // if (!this.connectedSockets[client.id])
-    //   this.connectedSockets[client.id] = [];
-    // this.connectedSockets[client.id].push(client);
+    this.logger.log("header auth: " + client.handshake.headers.authorization);
+    if (!this.connectedSockets[client.id])
+      this.connectedSockets[client.id] = [];
+    this.connectedSockets[client.id].push(client);
     this.logger.log(client.id);
     setInterval(function () {
-      client.emit('message', new Date().toISOString())
+      const ll = new LogLine(
+          "line",
+          "level",
+          "cluster",
+          Date.now(),
+          "153.168.144.131",
+          32001,
+          "pod",
+          "namespace",
+        )
+      client.emit('logline', ll.JSONstringify())
       //client.send("Some MESSAGE Event");
     }, 1000);//run this thang every 1 second
 }
@@ -38,18 +49,25 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
     //   client.id
     // ].filter(p => p.id !== client.id);
   }
+
   @SubscribeMessage('message')
   handleTestMessage(client: Socket, text: string): void {
     client.send("Respond to general message");
   }
 
-  //send data back to client that initiate this method call
-  // @SubscribeMessage('msgToServer')
-  // echoMessage(client: Socket, text: string): WsResponse<string> {
-  //   this.logger.log('msgToServer sent');
-  //   return {
-  //     event: 'msgToClient',
-  //     data: text
-  //   };
-  // }
+  @SubscribeMessage('testline')
+  handleTestLineMessage(client: Socket, text: string): WsResponse<LogLine> {
+    return {
+      event: 'logline',
+      data: new LogLine("line",
+        "level",
+        "cluster",
+        new Date().getDate(),
+        "ip",
+        80,
+        "pod",
+        "namespace",
+      )
+    }
+  }
 }

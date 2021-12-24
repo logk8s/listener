@@ -13,7 +13,7 @@ async function bootstrap() {
   //app.useWebSocketAdapter(new IoAdapter(app) as any);
   //app.useWebSocketAdapter(new WsAdapter(app) as any);
   app.enableCors({
-    origin: 'http://localhost:57556',
+    origin: 'http://localhost',
     credentials: true,
   });
 
