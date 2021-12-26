@@ -2,11 +2,19 @@
 import { Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WsResponse } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
+import { FetcherService } from './k8s/fetcher/fetcher.service';
 import { LogLine } from './utils/log-line';
+
+const msg =
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 
 @WebSocketGateway( { cors: true, transports: ['websocket', 'polling'] })
 export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
   private logger: Logger = new Logger('AppGateway');
+
+  constructor(private fetcher: FetcherService) {
+
+  }
 
   afterInit(server: Server) {
     this.logger.log('Initialized');
@@ -31,14 +39,14 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
     this.logger.log(client.id);
     setInterval(function () {
       const ll = new LogLine(
-          "line",
-          "level",
-          "cluster",
-          Date.now(),
-          "153.168.144.131",
-          32001,
-          "pod",
-          "namespace",
+        msg,
+        "Debug",
+        "cluster",
+        Date.now()*1000,
+        "153.168.144.131",
+        32001,
+        "pod",
+        "namespace",
         )
       client.emit('logline', ll.JSONstringify())
       //client.send("Some MESSAGE Event");
