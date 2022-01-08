@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 const k8s = require('@kubernetes/client-node')
 import { Logger } from '@nestjs/common';
-import { map } from 'rxjs';
+import { Structure } from 'src/utils/structure';
+
 
 @Injectable()
 export class StractureService {
@@ -9,11 +10,14 @@ export class StractureService {
   private namspaces = new Map<String, any>()
   private namspace2pods = new Map<String, Map<String, any>>()
   private namspace2podNames = new Map<String, Array<String>>()
+  private podContainers = new Map<String, Array<String>>()
   private pods = new Map<String, any>()
   private kc
   private k8sApi
+  private structure
 
   constructor() {
+    this.structure =  new Structure(this.namspaces, this.namspace2pods, this.namspace2podNames, this.pods)
     this.kc = new k8s.KubeConfig()
     this.kc.loadFromDefault()
     this.k8sApi = this.kc.makeApiClient(k8s.CoreV1Api)
@@ -41,6 +45,12 @@ export class StractureService {
       this.namspace2podNames
         .get(pod.metadata.namespace)
         .push(pod.metadata.name)
+      let containers = Array<String>()
+      pod.spec.containers.forEach(container => {
+        console.log(`${pod.metadata.name}: ${container.name}`)
+        containers.push(container.name)
+      })
+      this.podContainers.set(pod.metadata.name, containers)
 
     });
   }
@@ -61,6 +71,9 @@ export class StractureService {
     return this.getNamspace2podNames
   }
 
+  get getStructure(): Structure {
+    return this.structure
+  }
 }
 
 
