@@ -10,15 +10,17 @@ export class LogLine {
   private dash = ' - ';
 
   constructor(
-    private line: string,
-    private level: string,
-    private cluster: string,
     private timestamp: number,
-    private ip: string,
-    private port: number,
-    private pod: string,
-    private namespace: string,
-    //final List<String> viewers;
+    private level: string,
+    private category: string,
+    private line: string,
+    private cluster: string = "",
+    private namespace: string = "",
+    private pod: string = "",
+    private container: string = "",
+    private ip: string = "",
+    private port: number = 0
+    //final List<String> lines;
   ) { }
 
   toString(): string {
@@ -27,11 +29,16 @@ export class LogLine {
           ${this.semicolon}
           ${this.level}
           ${this.space}
+          ${this.category}
+          ${this.space}
           ${this.cluster}
           ${this.direct}
           ${this.namespace}
           ${this.direct}
           ${this.pod}
+          ${this.direct}
+          ${this.container}
+          ${this.space}
           ${this.openSegment}
           ${this.ip}
           ${this.semicolonNs}
@@ -51,6 +58,8 @@ export class LogLine {
       port: this.port,
       pod: this.pod,
       namespace: this.namespace,
+      category: this.category,
+      container: this.container
     }
   }
   JSONstringify(): any {
@@ -63,6 +72,8 @@ export class LogLine {
       port: this.port,
       pod: this.pod,
       namespace: this.namespace,
+      category: this.category,
+      container: this.container
     }
     return JSON.stringify(ret);
   }

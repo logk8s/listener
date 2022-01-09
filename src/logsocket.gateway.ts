@@ -41,14 +41,14 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
     this.logger.log(client.id);
     setInterval(function () {
       const ll = new LogLine(
-        msg,
-        "Debug",
-        "cluster",
         Date.now()*1000,
-        "153.168.144.131",
-        32001,
-        "pod",
+        "Debug",
+        "category",
+        msg,
+        "cluster",
         "namespace",
+        "pod",
+        "container"
         )
       client.emit('logline', ll.JSONstringify())
       //client.send("Some MESSAGE Event");
@@ -77,22 +77,21 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
         data: this.stractureService.getStructure
       }
     }
-
-
   }
 
   @SubscribeMessage('testline')
   handleTestLineMessage(client: Socket, text: string): WsResponse<LogLine> {
     return {
       event: 'logline',
-      data: new LogLine("line",
-        "level",
+      data: new LogLine(
+        Date.now()*1000,
+        "Debug",
+        "category",
+        msg,
         "cluster",
-        new Date().getDate(),
-        "ip",
-        80,
-        "pod",
         "namespace",
+        "pod",
+        "container"
       )
     }
   }
