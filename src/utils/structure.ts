@@ -2,10 +2,10 @@
 export class Structure {
 
   constructor(
-    private namspaces: Map<String, any>,
-    private namspace2pods: Map<String, Map<String, any>>,
-    private namspace2podNames: Map<String, Array<String>>,
-    private pods: Map<String, any>,
+    private namespaces:any,
+    private namespace2pods: any,
+    private namespace2podNames: any,
+    private pods: any,
     ) {}
 
   toJSON(): any {

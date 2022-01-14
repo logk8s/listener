@@ -36,7 +36,7 @@ export class FetcherService {
             var myRegex = new RegExp(/(\[\d\d\D)\[(.*)\]\s+\[(.*)\]\s+(.*)\s+\-\s+(.*\[\d\d\D)(.*)/g)
             const match = myRegex.exec(line)
             if (match != null) {
-              const timestamp = new Date(match[2]).getTime()
+              const timestamp = new Date(match[2]).getTime()*1000
               const level = match[3]
               const category = match[4]
               const line = match[6]

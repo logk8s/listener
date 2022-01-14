@@ -39,20 +39,23 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
       this.connectedSockets[client.id] = [];
     this.connectedSockets[client.id].push(client);
     this.logger.log(client.id);
-    setInterval(function () {
-      const ll = new LogLine(
-        Date.now()*1000,
-        "Debug",
-        "category",
-        msg,
-        "cluster",
-        "namespace",
-        "pod",
-        "container"
-        )
-      client.emit('logline', ll.JSONstringify())
-      //client.send("Some MESSAGE Event");
-    }, 1000);//run this thang every 1 second
+
+    //this.fetcher.fetchStream(client, 'emitters', 'emitter', 'emitter')
+
+    // setInterval(function () {
+    //   const ll = new LogLine(
+    //     Date.now()*1000,
+    //     "Debug",
+    //     "category",
+    //     msg,
+    //     "cluster",
+    //     "namespace",
+    //     "pod",
+    //     "container"
+    //     )
+    //   client.emit('logline', ll.JSONstringify())
+    //   //client.send("Some MESSAGE Event");
+    // }, 1000);//run this thang every 1 second
 }
   handleDisconnect(client: Socket) {
     // this.connectedSockets[client.id] = this.connectedSockets[
@@ -69,12 +72,15 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
   structureMessage(client: Socket, json: string): WsResponse<Structure> {
     const message = JSON.parse(json)
     if (message.subject == 'listen') {
-      //this.fetcher.fetchStream(client, 'namespace', 'pod')
+      console.log('listen command')
+      this.fetcher.fetchStream(client, 'namespace', 'pod')
     }
     else if (message.subject == 'structure') {
+      const structure = this.stractureService.getStructure
+      //console.log(JSON.stringify(structure))
       return {
         event: 'structure',
-        data: this.stractureService.getStructure
+        data: structure
       }
     }
   }

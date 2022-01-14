@@ -7,21 +7,21 @@ import { Structure } from 'src/utils/structure';
 @Injectable()
 export class StractureService {
   private logger: Logger = new Logger('StractureService')
-  private namspaces = new Map<String, any>()
-  private namspace2pods = new Map<String, Map<String, any>>()
-  private namspace2podNames = new Map<String, Array<String>>()
-  private podContainers = new Map<String, Array<String>>()
-  private pods = new Map<String, any>()
+  private namespaces = {}
+  private namespace2pods = {}
+  private namespace2podNames = {}
+  private podContainers = {}
+  private pods = {}
   private kc
   private k8sApi
   private structure
 
   constructor() {
-    this.structure =  new Structure(this.namspaces, this.namspace2pods, this.namspace2podNames, this.pods)
     this.kc = new k8s.KubeConfig()
     this.kc.loadFromDefault()
     this.k8sApi = this.kc.makeApiClient(k8s.CoreV1Api)
     this.getNamespaces()
+    this.structure =  new Structure(this.namespaces, this.namespace2pods, this.namespace2podNames, this.pods)
   }
 
   async getNamespaces() {
@@ -31,44 +31,41 @@ export class StractureService {
     const pod_ret = await this.k8sApi.listPodForAllNamespaces()
     const pod_items = pod_ret.body.items
     this.mapPods(pod_items);
+    //console.log(JSON.stringify(this.structure))
     //this.logger.verbose(JSON.stringify(pod_ret.body.items))//, null, 2))
   }
   mapPods(pod_items: any) {
     pod_items.forEach(pod => {
-      this.pods.set(pod.metadata.name, pod)
-      this.namspace2pods
-        .get(pod.metadata.namespace)
-        .set(pod.metadata.name, pod)
-      this.namspace2pods
-        .get(pod.metadata.namespace)
-        .set(pod.metadata.name, pod)
-      this.namspace2podNames
-        .get(pod.metadata.namespace)
-        .push(pod.metadata.name)
-      let containers = Array<String>()
+      this.pods[pod.metadata.name] = pod
+      this.namespace2pods[pod.metadata.namespace][pod.metadata.name] = pod
+      //this.namespace2pods[pod.metadata.namespace][pod.metadata.name] = pod
+      if (!this.namespace2podNames[pod.metadata.namespace])
+      this.namespace2podNames[pod.metadata.namespace] = []
+      this.namespace2podNames[pod.metadata.namespace].push(pod.metadata.name)
+      let containers = []
       pod.spec.containers.forEach(container => {
-        console.log(`${pod.metadata.name}: ${container.name}`)
+        //console.log(`${pod.metadata.name}: ${container.name}`)
         containers.push(container.name)
       })
-      this.podContainers.set(pod.metadata.name, containers)
+      this.podContainers[pod.metadata.name] = containers
 
     });
   }
   mapNamespaces(ns_items: any) {
     ns_items.forEach(namespace => {
       const name = namespace.metadata.name
-      this.namspaces.set(name, namespace)
-      this.namspace2pods.set(name, new Map<String, any>())
-      this.namspace2podNames.set(name, new Array<String>())
+      this.namespaces[name] = namespace
+      this.namespace2pods[name] = {}
+      this.namespace2podNames[name] =  []
     });
   }
 
-  get getNamspaces(): Map<String, any> {
-    return this.namspaces
+  get getnamespaces(): any {
+    return this.namespaces
   }
 
-  get getNamspace2podNames(): Map<String, Array<String>> {
-    return this.getNamspace2podNames
+  get getnamespace2podNames(): Map<String, Array<String>> {
+    return this.getnamespace2podNames
   }
 
   get getStructure(): Structure {
