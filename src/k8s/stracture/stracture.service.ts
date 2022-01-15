@@ -21,7 +21,7 @@ export class StractureService {
     this.kc.loadFromDefault()
     this.k8sApi = this.kc.makeApiClient(k8s.CoreV1Api)
     this.getNamespaces()
-    this.structure =  new Structure(this.namespaces, this.namespace2pods, this.namespace2podNames, this.pods)
+    this.structure =  new Structure(this.namespaces, this.namespace2pods, this.namespace2podNames, this.pods, this.podContainers)
   }
 
   async getNamespaces() {

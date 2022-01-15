@@ -6,6 +6,8 @@ export class Structure {
     private namespace2pods: any,
     private namespace2podNames: any,
     private pods: any,
+    private podContainers: any
+
     ) {}
 
   toJSON(): any {
