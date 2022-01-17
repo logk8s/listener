@@ -15,7 +15,7 @@ export class FetcherService {
     this.kc = new k8s.KubeConfig()
     this.kc.loadFromDefault()
     this.k8sApi = this.kc.makeApiClient(k8s.CoreV1Api)
-    // this.fetchStreamTest()
+    //this.fetchStreamTest()
   }
   async fetch() {
     //const logs = await this.k8sApi.readNamespacedPodLog('kafka-0', 'default', undefined, undefined, undefined, undefined, 'true', false, 120000, undefined, true);
@@ -28,11 +28,12 @@ export class FetcherService {
       try {
         //'emitter', 'emitters'
         //'kafka-0', 'default'
-        const res = await k8sApi.readNamespacedPodLog('emitter', 'emitters', 'emitter', false, false, undefined, "true", false, 1, undefined, false)
+        const res = await k8sApi.readNamespacedPodLog(pod, namespace, container, false, false, undefined, "true", false, 1, undefined, false); //false, false, undefined, "true", false, 1, undefined, false)
         if (res.body)
           res.body.split("\r\n").forEach(line => {
             line = line.trim()
             //use https://regexr.com/
+            //match log4js
             var myRegex = new RegExp(/(\[\d\d\D)\[(.*)\]\s+\[(.*)\]\s+(.*)\s+\-\s+(.*\[\d\d\D)(.*)/g)
             const match = myRegex.exec(line)
             if (match != null) {
@@ -52,6 +53,23 @@ export class FetcherService {
                 container,
                 )
               client.emit('logline', ll.JSONstringify())
+            } else {
+              const timestamp = new Date().getTime()*1000
+              const level = 'N/A'
+              const category = 'N/A'
+              const raw_line = line
+
+              const ll = new LogLine(
+                timestamp,
+                level,
+                category,
+                raw_line,
+                "cluster",
+                namespace,
+                pod,
+                container,
+                )
+              client.emit('logline', ll.JSONstringify())
             }
           })
       } catch (e) {
@@ -63,11 +81,11 @@ export class FetcherService {
     const k8sApi = this.k8sApi
     setInterval(async function () {
       try {
-        const res = await k8sApi.readNamespacedPodLog('emitter', 'emitters', 'emitter', false, false, undefined, "true", false, 1, undefined, false)
+        const res = await k8sApi.readNamespacedPodLog('kafka-0', 'default', 'kafka', true, false, undefined, "true", false, 1, undefined, false)
         if (res.body)
           res.body.split("\r\n").forEach(line => {
             line = line.trim()
-            var myRegex = new RegExp( /(\[\d\d\D)\[(.*)\]\s+\[(.*)\]\s+(.*)\s+\-\s+(.*\[\d\d\D)(.*)/g)
+            var myRegex = new RegExp(/(\[\d\d\D)\[(.*)\]\s+\[(.*)\]\s+(.*)\s+\-\s+(.*\[\d\d\D)(.*)/g)
             const match = myRegex.exec(line)
               if(match != null){
                 var JSONLine ={
@@ -75,26 +93,22 @@ export class FetcherService {
                   'level': match[3],
                   'category': match[4],
                   'line': match[6]
-              };
+                }
               console.log(JSON.stringify(JSONLine))
+              } else {
+                var JLine ={
+                  'time': new Date().getTime()*1000,
+                  'level': 'N/A',
+                  'category': 'N/A',
+                  'line': line
+                }
+              console.log(JSON.stringify(JLine))
+
             }
           })
       } catch (e) {
         console.log(e.message)
       }
-
-    }, 1000);//run this thang every 1 second
-
-    // while (true)
-    // {
-    //   //readNamespacedPodLog(name: string, namespace: string, container?: string, follow?: boolean, insecureSkipTLSVerifyBackend?: boolean, limitBytes?: number, pretty?: string, previous?: boolean, sinceSeconds?: number, tailLines?: number, timestamps?: boolean
-    //   //'emitter', 'emitters', 'emitter'
-    //   //'kafka-0', 'default', 'kafka'
-    //   const res = await this.k8sApi.readNamespacedPodLog('emitter', 'emitters', 'emitter', false, false, undefined, "true", false, 1, undefined, true)
-    //   if(res.body)
-    //     res.body.split("\n").forEach(line => {
-    //       console.log(line)
-    //     })
-    // }
+    }, 1000);
   }
 }

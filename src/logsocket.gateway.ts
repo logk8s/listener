@@ -34,12 +34,12 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
     //const token = this.extractTokensCookie(req.headers['cookie'])
     // for this example, we simply set userId by token
     //client.id = token;
-    this.logger.log("header auth: " + client.handshake.headers.authorization);
+    this.logger.log("header auth: " + client.handshake.headers.authorization)
     if (!this.connectedSockets[client.id])
-      this.connectedSockets[client.id] = [];
-    this.connectedSockets[client.id].push(client);
-    this.logger.log(client.id);
-
+      this.connectedSockets[client.id] = []
+    this.connectedSockets[client.id].push(client)
+    this.logger.log(client.id)
+    client.emit('connected', client.id)
     //this.fetcher.fetchStream(client, 'emitters', 'emitter', 'emitter')
 
     // setInterval(function () {
@@ -72,8 +72,9 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
   structureMessage(client: Socket, json: string): WsResponse<Structure> {
     const message = JSON.parse(json)
     if (message.subject == 'listen') {
-      console.log('listen command')
-      this.fetcher.fetchStream(client, 'namespace', 'pod')
+      console.log('listen command - ' + message.listener.namespace)
+      const l = message.listener
+      this.fetcher.fetchStream(client, l.namespace, l.pod, l.container)
     }
     else if (message.subject == 'structure') {
       const structure = this.stractureService.getStructure

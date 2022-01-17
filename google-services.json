@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1038572526210",
+    "project_id": "pay4-100",
+    "storage_bucket": "pay4-100.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038572526210:android:8ca118f16ac2c4f54df29b",
+        "android_client_info": {
+          "package_name": "il.co.pay4"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1038572526210-7h5i4kq67h1g31ahsrrskd3r0npib0en.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCb433GZMELrLh1erPOnl3tdNq9soYqsn0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1038572526210-7h5i4kq67h1g31ahsrrskd3r0npib0en.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1038572526210-chhp1ccurbjj87vai1t6mefsla4guj5g.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "il.co.pay4"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
