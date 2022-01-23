@@ -21,7 +21,7 @@ import { UserService } from './user/user.service';
     FirestoreModule.forRoot({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        keyFilename: configService.get<string>('SA_KEY'),
+        keyFilename: '/Users/m/projects/logk8s/listener/pay4-100-firebase-adminsdk-1ch4h-5044b20abb.json' //configService.get<string>('SA_KEY'),
       }),
       inject: [ConfigService],
     }),

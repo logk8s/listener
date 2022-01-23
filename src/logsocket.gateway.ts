@@ -4,6 +4,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Socket, Server } from 'socket.io';
 import { FetcherService } from './k8s/fetcher/fetcher.service';
 import { StractureService } from './k8s/stracture/stracture.service';
+import { UsageService } from './usage/usage.service';
 import { LogLine } from './utils/log-line';
 import { Structure } from './utils/structure';
 
@@ -14,7 +15,9 @@ const msg =
 export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
   private logger: Logger = new Logger('AppGateway');
 
-  constructor(private stractureService: StractureService, private fetcher: FetcherService) {
+  constructor(private stractureService: StractureService,
+    private fetcher: FetcherService,
+    private usage: UsageService) {
 
   }
 
@@ -65,7 +68,9 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 
   @SubscribeMessage('message')
   handleTestMessage(client: Socket, text: string): void {
+    console.log("handleTestMessage: " + text)
     client.send("Respond to general message");
+    this.usage.create({name: 'moshe', dueDate: 1})
   }
 
   @SubscribeMessage('structure')
@@ -74,7 +79,31 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
     if (message.subject == 'listen') {
       console.log('listen command - ' + message.listener.namespace)
       const l = message.listener
-      this.fetcher.fetchStream(client, l.namespace, l.pod, l.container)
+      //this.fetcher.fetchStream(client, l.namespace, l.pod, l.container)
+      if (this.fetcher.existsClientFetcher(client.id, l.namespace, l.pod, l.container))
+        this.fetcher.startClientFetcher(client.id, l.namespace, l.pod, l.container)
+      else
+        this.fetcher.addClientFetcher(client.id, client, true,  l.namespace, l.pod, l.container)
+    }
+    else if (message.subject == 'start') {
+      console.log('start command - ' + message.listener.namespace)
+      const l = message.listener
+      this.fetcher.startClientFetcher(client.id, l.namespace, l.pod, l.container)
+    }
+    else if (message.subject == 'stop') {
+      console.log('stop command - ' + message.listener.namespace)
+      const l = message.listener
+      this.fetcher.stopClientFetcher(client.id, l.namespace, l.pod, l.container)
+    }
+    else if (message.subject == 'start_all') {
+      console.log('start_all command - ' + message.listener.namespace)
+      const l = message.listener
+      this.fetcher.startAllClientFetcher(client.id)
+    }
+    else if (message.subject == 'stop_all') {
+      console.log('stop_all command - ' + message.listener.namespace)
+      const l = message.listener
+      this.fetcher.stopAllClientFetcher(client.id)
     }
     else if (message.subject == 'structure') {
       const structure = this.stractureService.getStructure
