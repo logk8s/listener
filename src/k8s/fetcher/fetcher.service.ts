@@ -6,12 +6,16 @@ import { LogLineParser } from 'src/parse/logline.parser';
 import { LogLine } from 'src/utils/log-line';
 
 
-class FetchKey {
+class FetchID {
+  key: string
+
   constructor(
     private namespace: string,
     private pod: string,
     private container: string
-  ){}
+  ) {
+    this.key = this.namespace + this.pod + this.container;
+  }
 }
 
 class StreamFetcher {
@@ -71,7 +75,7 @@ export class FetcherService {
   private logger: Logger = new Logger('FetcherService')
   private kc
   private k8sApi
-  private  clientFetures: Map<String, Map<FetchKey, StreamFetcher>> = new Map<String, Map<FetchKey, StreamFetcher>>()
+  private  clientFetures: Map<String, Map<String, StreamFetcher>> = new Map<String, Map<String, StreamFetcher>>()
 
   constructor() {
     this.kc = new k8s.KubeConfig()
@@ -86,10 +90,10 @@ export class FetcherService {
   }
 
   async addClientFetcher(clientId: string, client: Socket, start: boolean, namespace: string, pod: string, container: string = undefined) {
-    const key = new FetchKey(namespace, pod, container)
+    const key = new FetchID(namespace, pod, container).key
     var sf = new StreamFetcher(this.k8sApi, clientId, client, namespace, pod, container)
     if (!this.clientFetures.has(clientId))
-      this.clientFetures.set(clientId, new Map<FetchKey, StreamFetcher>())
+      this.clientFetures.set(clientId, new Map<String, StreamFetcher>())
     if (this.clientFetures.get(clientId).has(key))
       throw new Error('client already listen for those parameters')
     this.clientFetures.get(clientId).set(key, sf)
@@ -104,20 +108,22 @@ export class FetcherService {
   }
 
   startClientFetcher(clientId: string, namespace: string, pod: string, container: string = undefined) {
-    const key = new FetchKey(namespace, pod, container)
+    const key = new FetchID(namespace, pod, container).key
     this.clientFetures.get(clientId).get(key).startStream()
   }
 
   existsClientFetcher(clientId: string, namespace: string, pod: string, container: string = undefined) {
-    const key = new FetchKey(namespace, pod, container)
+    const key = new FetchID(namespace, pod, container).key
     const ret = this.clientFetures.has(clientId) && this.clientFetures.get(clientId).has(key)
     this.logger.debug(`ret=${ret}`)
     return ret;
   }
 
   stopClientFetcher(clientId: string, namespace: string, pod: string, container: string = undefined) {
-    const key = new FetchKey(namespace, pod, container)
-    this.clientFetures.get(clientId).get(key).stopStream()
+    const key = new FetchID(namespace, pod, container).key
+    const client = this.clientFetures.get(clientId)
+    const sf = client.get(key)
+    sf.stopStream()
   }
 
   startAllClientFetcher(clientId: string) {

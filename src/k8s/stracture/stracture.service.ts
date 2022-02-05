@@ -31,9 +31,8 @@ export class StractureService {
     const pod_ret = await this.k8sApi.listPodForAllNamespaces()
     const pod_items = pod_ret.body.items
     this.mapPods(pod_items);
-    //console.log(JSON.stringify(this.structure))
-    //this.logger.verbose(JSON.stringify(pod_ret.body.items))//, null, 2))
   }
+
   mapPods(pod_items: any) {
     pod_items.forEach(pod => {
       this.pods[pod.metadata.name] = pod
