@@ -12,6 +12,7 @@ export class StractureService {
   private namespace2podNames = {}
   private podContainers = {}
   private pods = {}
+  private tree = {}
   private kc
   private k8sApi
   private structure
@@ -21,7 +22,7 @@ export class StractureService {
     this.kc.loadFromDefault()
     this.k8sApi = this.kc.makeApiClient(k8s.CoreV1Api)
     this.getNamespaces()
-    this.structure =  new Structure(this.namespaces, this.namespace2pods, this.namespace2podNames, this.pods, this.podContainers)
+    this.structure =  new Structure(this.namespaces, this.namespace2pods, this.namespace2podNames, this.pods, this.podContainers, this.tree)
   }
 
   async getNamespaces() {
@@ -39,13 +40,22 @@ export class StractureService {
       this.namespace2pods[pod.metadata.namespace][pod.metadata.name] = pod
       //this.namespace2pods[pod.metadata.namespace][pod.metadata.name] = pod
       if (!this.namespace2podNames[pod.metadata.namespace])
-      this.namespace2podNames[pod.metadata.namespace] = []
+        this.namespace2podNames[pod.metadata.namespace] = []
+
       this.namespace2podNames[pod.metadata.namespace].push(pod.metadata.name)
       let containers = []
       pod.spec.containers.forEach(container => {
         //console.log(`${pod.metadata.name}: ${container.name}`)
         containers.push(container.name)
       })
+
+      if (!this.tree[pod.metadata.namespace])
+        this.tree[pod.metadata.namespace] = {}
+
+      if (!this.tree[pod.metadata.namespace][pod.metadata.name])
+        this.tree[pod.metadata.namespace][pod.metadata.name] = []
+      this.tree[pod.metadata.namespace][pod.metadata.name].push(containers)
+
       this.podContainers[pod.metadata.name] = containers
 
     });
