@@ -1,5 +1,5 @@
 
-export class Structure {
+export class Stracture {
 
   constructor(
     private namespaces:any,

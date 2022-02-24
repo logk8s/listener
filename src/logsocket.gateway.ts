@@ -6,7 +6,7 @@ import { FetcherService } from './k8s/fetcher/fetcher.service';
 import { StractureService } from './k8s/stracture/stracture.service';
 import { UsageService } from './usage/usage.service';
 import { LogLine } from './utils/log-line';
-import { Structure } from './utils/structure';
+import { Stracture } from './utils/stracture';
 
 const msg =
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
@@ -73,8 +73,8 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
     this.usage.create({name: 'moshe', dueDate: 1})
   }
 
-  @SubscribeMessage('structure')
-  structureMessage(client: Socket, json: string): WsResponse<Structure> {
+  @SubscribeMessage('stracture')
+  stractureMessage(client: Socket, json: string): WsResponse<Stracture> {
     const message = JSON.parse(json)
     if (message.subject == 'listen') {
       console.log('listen command - ' + message.listener.namespace)
@@ -105,12 +105,12 @@ export class LogsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
       const l = message.listener
       this.fetcher.stopAllClientFetcher(client.id)
     }
-    else if (message.subject == 'structure') {
-      const structure = this.stractureService.getStructure
-      //console.log(JSON.stringify(structure))
+    else if (message.subject == 'stracture') {
+      const stracture = this.stractureService.getStracture
+      //console.log(JSON.stringify(stracture))
       return {
-        event: 'structure',
-        data: structure
+        event: 'stracture',
+        data: stracture
       }
     }
   }

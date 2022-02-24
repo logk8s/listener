@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 const k8s = require('@kubernetes/client-node')
 import { Logger } from '@nestjs/common';
-import { Structure } from 'src/utils/structure';
+import { Stracture } from 'src/utils/stracture';
 
 
 @Injectable()
@@ -15,14 +15,14 @@ export class StractureService {
   private tree = {}
   private kc
   private k8sApi
-  private structure
+  private stracture
 
   constructor() {
     this.kc = new k8s.KubeConfig()
     this.kc.loadFromDefault()
     this.k8sApi = this.kc.makeApiClient(k8s.CoreV1Api)
     this.getNamespaces()
-    this.structure =  new Structure(this.namespaces, this.namespace2pods, this.namespace2podNames, this.pods, this.podContainers, this.tree)
+    this.stracture =  new Stracture(this.namespaces, this.namespace2pods, this.namespace2podNames, this.pods, this.podContainers, this.tree)
   }
 
   async getNamespaces() {
@@ -77,8 +77,8 @@ export class StractureService {
     return this.getnamespace2podNames
   }
 
-  get getStructure(): Structure {
-    return this.structure
+  get getStracture(): Stracture {
+    return this.stracture
   }
 }
 
