@@ -12,6 +12,7 @@ import { UsageService } from './usage/usage.service';
 import { OrganizationService } from './organization/organization.service';
 import { AccountService } from './account/account.service';
 import { UserService } from './user/user.service';
+import { ClusterController } from './cluster/cluster.controller';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { UserService } from './user/user.service';
     }),
     LogsocketModule
   ],
-  controllers: [AppController],
+  controllers: [AppController, ClusterController],
   providers: [AppService, LogsocketGateway, StractureService, FetcherService, BackupService, UsageService, OrganizationService, AccountService, UserService],
 })
 export class AppModule {}

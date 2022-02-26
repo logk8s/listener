@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package logs;
+
+service ListenService {
+
+  rpc Listen (ConteinerId) returns (LogLine) {}
+  rpc Strcture (ConteinerId) returns (LogLine) {}
+}
+
+message ConteinerId {
+  string namespace = 1;
+  string pod = 2;
+  string container = 3;
+}
+
+message LogLine {
+  int64 timestamp = 1;
+  string logLine = 2;
+}
+  

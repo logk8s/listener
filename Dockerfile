@@ -1,26 +1,57 @@
-FROM node:current-buster
+FROM node:17-alpine3.14 As development
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-## Enabled on developmet mode
+COPY package*.json ./
+
+RUN npm install --only=development
+
 COPY . .
 
-## Enabled on production mode
-# COPY ./nest/package.json package.json
-# COPY ./nest/tsconfig.json tsconfig.json
-# COPY ./nest/tsconfig.build.json tsconfig.build.json
-# COPY ./nest/src src
+RUN npm run build
 
-RUN ["npm","install","global","@nestjs/cli"]
-RUN ["npm", "install"]
+FROM node:17-alpine3.14 as production
 
-## Enabled on production mode
-# RUN ["npm", "run", "build"]
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
 
-EXPOSE 3010
+WORKDIR /usr/src/app
 
-## Enabled on development mode
-ENTRYPOINT ["npm","run","start:dev"]
+COPY package*.json ./
 
-## Enabled on production mode
-# ENTRYPOINT ["npm","run","start:prod"]
+RUN npm install --only=production
+
+COPY . .
+
+COPY --from=development /usr/src/app/dist ./dist
+EXPOSE 3000 5000
+CMD ["node", "dist/main"]
+
+
+
+# FROM node:current-buster
+
+# WORKDIR /app
+
+# ## Enabled on developmet mode
+# COPY . .
+
+# ## Enabled on production mode
+# # COPY ./nest/package.json package.json
+# # COPY ./nest/tsconfig.json tsconfig.json
+# # COPY ./nest/tsconfig.build.json tsconfig.build.json
+# # COPY ./nest/src src
+
+# RUN ["npm","install","global","@nestjs/cli"]
+# RUN ["npm", "install"]
+
+# ## Enabled on production mode
+# # RUN ["npm", "run", "build"]
+
+# EXPOSE 3010
+
+# ## Enabled on development mode
+# ENTRYPOINT ["npm","run","start:dev"]
+
+# ## Enabled on production mode
+# # ENTRYPOINT ["npm","run","start:prod"]
