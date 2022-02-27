@@ -14,15 +14,21 @@ import { AccountService } from './account/account.service';
 import { UserService } from './user/user.service';
 import { ClusterController } from './cluster/cluster.controller';
 
+const envFilePath = `${process.cwd()}/config/${process.env.NODE_ENV || ""}.env`
+console.log("envFilePath:" + envFilePath)
+
+
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
+      envFilePath: envFilePath,
+
     }),
     FirestoreModule.forRoot({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        keyFilename: '/Users/m/projects/logk8s/listener/pay4-100-firebase-adminsdk-1ch4h-5044b20abb.json' //configService.get<string>('SA_KEY'),
+        keyFilename: '/Users/m/projects/logk8s/listener/pay4-100-firebase-adminsdk-1ch4h-5044b20abb.json'
       }),
       inject: [ConfigService],
     }),

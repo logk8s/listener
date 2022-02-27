@@ -1,6 +1,8 @@
 import { BadRequestException, ConflictException, Injectable } from '@nestjs/common'
 const k8s = require('@kubernetes/client-node')
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { config } from 'process';
 import { Socket } from 'socket.io';
 import { LogLineParser } from 'src/parse/logline.parser';
 import { LogLine } from 'src/utils/log-line';
@@ -77,9 +79,12 @@ export class FetcherService {
   private k8sApi
   private  clientFetures: Map<String, Map<String, StreamFetcher>> = new Map<String, Map<String, StreamFetcher>>()
 
-  constructor() {
+  constructor(private configService: ConfigService) {
     this.kc = new k8s.KubeConfig()
-    this.kc.loadFromDefault()
+    if(this.configService.get<boolean>('loadFromDefault', false))
+      this.kc.loadFromDefault()
+    else
+      this.kc.loadFromCluster()
     this.k8sApi = this.kc.makeApiClient(k8s.CoreV1Api)
     //this.fetchStreamTest()
   }
