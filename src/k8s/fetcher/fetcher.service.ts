@@ -53,7 +53,7 @@ class StreamFetcher {
             client.emit('logline', ll.JSONstringify())
           })
       } catch (e) {
-        console.log(e.message)
+        //console.log(e.message)
       }
     }, 1000);//run this thang every 1 second
   }
@@ -80,13 +80,17 @@ export class FetcherService {
   private  clientFetures: Map<String, Map<String, StreamFetcher>> = new Map<String, Map<String, StreamFetcher>>()
 
   constructor(private configService: ConfigService) {
-    this.kc = new k8s.KubeConfig()
-    if(this.configService.get<boolean>('loadFromDefault', false))
-      this.kc.loadFromDefault()
-    else
-      this.kc.loadFromCluster()
-    this.k8sApi = this.kc.makeApiClient(k8s.CoreV1Api)
-    //this.fetchStreamTest()
+    try {
+      this.kc = new k8s.KubeConfig()
+      if(this.configService.get<boolean>('loadFromDefault', false))
+        this.kc.loadFromDefault()
+      else
+        this.kc.loadFromCluster()
+      this.k8sApi = this.kc.makeApiClient(k8s.CoreV1Api)
+      //this.fetchStreamTest()
+    } catch (e) {
+      console.log(e.messsage)
+    }
   }
   async fetch() {
     //const logs = await this.k8sApi.readNamespacedPodLog('kafka-0', 'default', undefined, undefined, undefined, undefined, 'true', false, 120000, undefined, true);

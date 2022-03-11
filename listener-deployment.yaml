@@ -1,24 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: logk8s
+  namespace: logk8s
+  labels:
+    name: listene
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: logk8s
-      tier: listener
-      track: stable
-  replicas: 3
+      app: listener
   template:
     metadata:
       labels:
-        app: logk8s
-        tier: listener
-        track: stable
+        app: listener
     spec:
       containers:
-        - name: logk8s
-          image: "logk8s.com/logk8s/listener:1.0"
-          ports:
-            - name: http
-              containerPort: 80
+      - name: listener
+        image: logk8s/listener:1.0
+        ports:
+        - containerPort: 5000
+          name: grpc
+        - containerPort: 3000
+          name: websocket
